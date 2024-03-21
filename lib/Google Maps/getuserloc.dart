@@ -26,12 +26,20 @@ class _GetUserLocState extends State<GetUserLoc> {
         )),
   ];
 
+  Future<Position> getUserLocation() async {
+    await Geolocator.requestPermission()
+        .then((value) {})
+        .onError((error, stackTrace) {
+      print("error: " + error.toString());
+    });
+
+    return await Geolocator.getCurrentPosition();
+  }
+
   LoadData() {
     getUserLocation().then((value) async {
-      print("Current Location:" +
-          value.latitude.toString() +
-          " " +
-          value.longitude.toString());
+      print("Current Location: ");
+      print(value.latitude.toString() + " " + value.longitude.toString());
       _marker.add(Marker(
           markerId: MarkerId("2"),
           position: LatLng(value.latitude, value.longitude),
@@ -46,16 +54,6 @@ class _GetUserLocState extends State<GetUserLoc> {
     });
   }
 
-  Future<Position> getUserLocation() async {
-    await Geolocator.requestPermission()
-        .then((value) {})
-        .onError((error, stackTrace) {
-      print("error: " + error.toString());
-    });
-
-    return await Geolocator.getCurrentPosition();
-  }
-
   @override
   void initState() {
     // TODO: implement initState
@@ -65,19 +63,42 @@ class _GetUserLocState extends State<GetUserLoc> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: GoogleMap(
+    return SafeArea(
+      child: Scaffold(
+        body: GoogleMap(
             initialCameraPosition: _kGooglePlex,
+            myLocationButtonEnabled: true,
+            
             mapType: MapType.normal,
             markers: Set<Marker>.of(_marker),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
+              
             }),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {},
-        child: Icon(Icons.location_on),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.only(top: 40.0),
+        //   child: Align(
+        //     alignment: Alignment.topRight,
+        //     child: FloatingActionButton(
+        //       onPressed: () async {
+        //         Position? userPosition = await getUserLocation();
+        //         if (userPosition != null) {
+        //           CameraPosition cameraPosition = CameraPosition(
+        //             target:
+        //                 LatLng(userPosition.latitude, userPosition.longitude),
+        //             zoom: 14.4746,
+        //           );
+        //           final GoogleMapController controller =
+        //               await _controller.future;
+        //           controller.animateCamera(
+        //             CameraUpdate.newCameraPosition(cameraPosition),
+        //           );
+        //         }
+        //       },
+        //       child: Icon(Icons.location_on),
+        //     ),
+        //   ),
+        // ),
       ),
     );
   }
