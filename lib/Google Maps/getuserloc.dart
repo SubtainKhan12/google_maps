@@ -67,38 +67,18 @@ class _GetUserLocState extends State<GetUserLoc> {
       child: Scaffold(
         body: GoogleMap(
             initialCameraPosition: _kGooglePlex,
-            myLocationButtonEnabled: true,
-            
             mapType: MapType.normal,
+            zoomControlsEnabled: true,
+            zoomGesturesEnabled: true,
+            myLocationButtonEnabled: true,
+            myLocationEnabled: true,
+            trafficEnabled: false,
+            rotateGesturesEnabled: true,
+            buildingsEnabled: true,
             markers: Set<Marker>.of(_marker),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
-              
             }),
-        // floatingActionButton: Padding(
-        //   padding: const EdgeInsets.only(top: 40.0),
-        //   child: Align(
-        //     alignment: Alignment.topRight,
-        //     child: FloatingActionButton(
-        //       onPressed: () async {
-        //         Position? userPosition = await getUserLocation();
-        //         if (userPosition != null) {
-        //           CameraPosition cameraPosition = CameraPosition(
-        //             target:
-        //                 LatLng(userPosition.latitude, userPosition.longitude),
-        //             zoom: 14.4746,
-        //           );
-        //           final GoogleMapController controller =
-        //               await _controller.future;
-        //           controller.animateCamera(
-        //             CameraUpdate.newCameraPosition(cameraPosition),
-        //           );
-        //         }
-        //       },
-        //       child: Icon(Icons.location_on),
-        //     ),
-        //   ),
-        // ),
       ),
     );
   }
