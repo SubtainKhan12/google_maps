@@ -16,16 +16,48 @@ class _WindowInfoState extends State<WindowInfo> {
   late LatLng _userLocation = LatLng(33.6941, 72.9734); // Default location
   late GoogleMapController _mapController;
   bool _isMapReady = false;
+  bool _locationPermissionDenied = false;
 
   List<Marker> _marker = <Marker>[];
 
   @override
   void initState() {
     super.initState();
-    getUserLocation();
+    _checkLocationPermission();
   }
 
-  Future<void> getUserLocation() async {
+  Future<void> _checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      // Permission denied, show dialog to request permission
+      _requestLocationPermission();
+    } else if (permission == LocationPermission.deniedForever) {
+      // Permission permanently denied, handle accordingly
+      setState(() {
+        _locationPermissionDenied = true;
+      });
+    } else {
+      // Permission granted, proceed with getting user location
+      _getUserLocation();
+    }
+  }
+
+  Future<void> _requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      // Permission still denied, user may be asked again on next launch
+    } else if (permission == LocationPermission.deniedForever) {
+      // Permission permanently denied, handle accordingly
+      setState(() {
+        _locationPermissionDenied = true;
+      });
+    } else {
+      // Permission granted, proceed with getting user location
+      _getUserLocation();
+    }
+  }
+
+  Future<void> _getUserLocation() async {
     Position position = await Geolocator.getCurrentPosition();
     setState(() {
       _userLocation = LatLng(position.latitude, position.longitude);
@@ -93,7 +125,7 @@ class _WindowInfoState extends State<WindowInfo> {
                     child: Text(
                       'Crystal Solutions',
                       maxLines: 1,
-                      overflow: TextOverflow.fade,
+                      // overflow: TextOverflow.fade,
                       softWrap: false,
                       style: TextStyle(color: Colors.black),
                     ),
@@ -109,7 +141,7 @@ class _WindowInfoState extends State<WindowInfo> {
             const Padding(
               padding: EdgeInsets.only(top: 10, left: 10, right: 10),
               child: Text(
-                'Challenge us with your requirnments',
+                'Challenge us with your requirements',
                 maxLines: 2,
                 style: TextStyle(color: Colors.black),
               ),
@@ -125,38 +157,45 @@ class _WindowInfoState extends State<WindowInfo> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _userLocation,
-                zoom: 14,
+        body: _locationPermissionDenied
+            ? Center(
+                child: Text(
+                  'Location permission denied.',
+                  style: TextStyle(fontSize: 18),
+                ),
+              )
+            : Stack(
+                children: [
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _userLocation,
+                      zoom: 14,
+                    ),
+                    mapType: MapType.normal,
+                    zoomControlsEnabled: true,
+                    zoomGesturesEnabled: true,
+                    myLocationButtonEnabled: true,
+                    // myLocationEnabled: true,
+                    trafficEnabled: false,
+                    rotateGesturesEnabled: true,
+                    buildingsEnabled: true,
+                    markers: Set.of(_marker),
+                    onTap: (position) {
+                      _customInfoWindowController.hideInfoWindow!();
+                    },
+                    onCameraMove: (position) {
+                      _customInfoWindowController.onCameraMove!();
+                    },
+                    onMapCreated: onMapCreated,
+                  ),
+                  CustomInfoWindow(
+                    controller: _customInfoWindowController,
+                    height: 200,
+                    width: 300,
+                    offset: 35,
+                  ),
+                ],
               ),
-              mapType: MapType.normal,
-              zoomControlsEnabled: true,
-              zoomGesturesEnabled: true,
-              myLocationButtonEnabled: true,
-              // myLocationEnabled: true,
-              trafficEnabled: false,
-              rotateGesturesEnabled: true,
-              buildingsEnabled: true,
-              markers: Set.of(_marker),
-              onTap: (position) {
-                _customInfoWindowController.hideInfoWindow!();
-              },
-              onCameraMove: (position) {
-                _customInfoWindowController.onCameraMove!();
-              },
-              onMapCreated: onMapCreated,
-            ),
-            CustomInfoWindow(
-              controller: _customInfoWindowController,
-              height: 200,
-              width: 300,
-              offset: 35,
-            ),
-          ],
-        ),
       ),
     );
   }
