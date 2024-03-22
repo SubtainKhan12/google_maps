@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: GoogleMap(
             initialCameraPosition: _kGooglePlex,
             mapType: MapType.normal,
+            myLocationEnabled: true,
             markers: Set<Marker>.of(_marker),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
