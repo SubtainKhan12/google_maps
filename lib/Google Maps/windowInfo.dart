@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -5,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class WindowInfo extends StatefulWidget {
   const WindowInfo({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class WindowInfo extends StatefulWidget {
   @override
   State<WindowInfo> createState() => _WindowInfoState();
 }
+
+
 
 class _WindowInfoState extends State<WindowInfo> {
   CustomInfoWindowController _customInfoWindowController =
@@ -21,6 +25,7 @@ class _WindowInfoState extends State<WindowInfo> {
   bool _isMapReady = false;
   bool _locationPermissionDenied = false;
   File? _imageFile;
+  
 
   List<Marker> _marker = <Marker>[];
 
@@ -33,15 +38,15 @@ class _WindowInfoState extends State<WindowInfo> {
   Future<void> _checkLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      // Permission denied, show dialog to request permission
+      
       _requestLocationPermission();
     } else if (permission == LocationPermission.deniedForever) {
-      // Permission permanently denied, handle accordingly
+      
       setState(() {
         _locationPermissionDenied = true;
       });
     } else {
-      // Permission granted, proceed with getting user location
+      
       _getUserLocation();
     }
   }
@@ -110,23 +115,29 @@ class _WindowInfoState extends State<WindowInfo> {
                   fit: BoxFit.cover,
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.only(top: 5, left: 10),
+            const SizedBox(height: 5),
+            Center(
               child: Text(
-                "Upload Picture",
-                style: TextStyle(fontSize: 18),
+                "Latitude: ${_userLocation.latitude.toString()}",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Center(
+              child: Text(
+                "Longitude: ${_userLocation.longitude.toString()}",
+                style: const TextStyle(fontSize: 16),
               ),
             ),
             GestureDetector(
               onTap: _takePicture,
               child: Padding(
-                padding: const EdgeInsets.only(top: 5, left: 10),
+                padding: const EdgeInsets.only(top: 5, left: 250),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color.fromARGB(255, 164, 147, 192),
+                    color: const Color.fromARGB(255, 164, 147, 192),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.camera,
                     size: 35,
                   ),
@@ -151,6 +162,7 @@ class _WindowInfoState extends State<WindowInfo> {
       showInfoWindow();
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
