@@ -41,6 +41,7 @@ dependencies:
   http:
   uuid: ^4.3.3
   custom_info_window: ^1.0.1
+  file_picker:
   image_picker:
   
 

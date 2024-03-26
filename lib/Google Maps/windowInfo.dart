@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps/fileupload.dart';
+import 'package:google_maps/model/responsemodel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,17 +16,13 @@ class WindowInfo extends StatefulWidget {
   State<WindowInfo> createState() => _WindowInfoState();
 }
 
-
-
 class _WindowInfoState extends State<WindowInfo> {
   CustomInfoWindowController _customInfoWindowController =
       CustomInfoWindowController();
   late LatLng _userLocation = LatLng(33.6941, 72.9734); // Default location
   late GoogleMapController _mapController;
   bool _isMapReady = false;
-  bool _locationPermissionDenied = false;
   File? _imageFile;
-  
 
   List<Marker> _marker = <Marker>[];
 
@@ -38,15 +35,10 @@ class _WindowInfoState extends State<WindowInfo> {
   Future<void> _checkLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      
       _requestLocationPermission();
     } else if (permission == LocationPermission.deniedForever) {
-      
-      setState(() {
-        _locationPermissionDenied = true;
-      });
+      setState(() {});
     } else {
-      
       _getUserLocation();
     }
   }
@@ -57,9 +49,7 @@ class _WindowInfoState extends State<WindowInfo> {
       // Permission still denied, user may be asked again on next launch
     } else if (permission == LocationPermission.deniedForever) {
       // Permission permanently denied, handle accordingly
-      setState(() {
-        _locationPermissionDenied = true;
-      });
+      setState(() {});
     } else {
       // Permission granted, proceed with getting user location
       _getUserLocation();
@@ -70,20 +60,22 @@ class _WindowInfoState extends State<WindowInfo> {
     Position position = await Geolocator.getCurrentPosition();
     setState(() {
       _userLocation = LatLng(position.latitude, position.longitude);
-      _marker.add(
-        Marker(
-          markerId: MarkerId("user_location"),
-          position: _userLocation,
-          onTap: () {
-            showInfoWindow();
-          },
-        ),
-      );
+      _marker.add(_buildMarker(_userLocation));
     });
 
     if (_isMapReady) {
       _mapController.animateCamera(CameraUpdate.newLatLng(_userLocation));
     }
+  }
+
+  Marker _buildMarker(LatLng position) {
+    return Marker(
+      markerId: MarkerId(position.toString()),
+      position: position,
+      onTap: () {
+        showInfoWindow();
+      },
+    );
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -144,6 +136,14 @@ class _WindowInfoState extends State<WindowInfo> {
                 ),
               ),
             ),
+            GestureDetector(
+                onTap: () {
+                  post_imageMethod();
+                },
+                child: const Icon(
+                  Icons.upload,
+                  size: 40,
+                ))
           ],
         ),
       ),
@@ -158,11 +158,11 @@ class _WindowInfoState extends State<WindowInfo> {
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
+        _marker.add(_buildMarker(_userLocation));
       });
       showInfoWindow();
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -193,13 +193,50 @@ class _WindowInfoState extends State<WindowInfo> {
             ),
             CustomInfoWindow(
               controller: _customInfoWindowController,
-              height: 250,
+              height: 300,
               width: 300,
               offset: 35,
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => FilePickerWidget()));
+                  },
+                  child: Text("File Upload")),
+            )
           ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+        floatingActionButton: FloatingActionButton(
+          shape: const CircleBorder(),
+          backgroundColor: Colors.white60,
+          onPressed: _takePicture,
+          tooltip: 'Take Picture',
+          child: const Icon(Icons.camera_alt),
         ),
       ),
     );
+  }
+
+  Future post_imageMethod() async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://crystalsolutions.com.pk/test/Location.php'));
+    request.fields['latitude'] = _userLocation.latitude.toString();
+    request.fields['longitude'] = _userLocation.longitude.toString();
+    var picture = await http.MultipartFile.fromPath('pic', _imageFile!.path);
+    request.files.add(picture);
+
+    final response = await http.Response.fromStream(await request.send());
+
+    var result = jsonDecode(response.body.toString());
+
+    ResponseModel responseModel = ResponseModel.fromJson(result);
+    if (result["error"] == 200) {
+      print(result["message"]);
+    } else {
+      print(result["error"]);
+    }
   }
 }
