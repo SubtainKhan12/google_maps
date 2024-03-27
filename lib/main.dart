@@ -5,6 +5,8 @@ import 'package:google_maps/Google%20Maps/Search.dart';
 import 'package:google_maps/Google%20Maps/getuserloc.dart';
 import 'package:google_maps/Google%20Maps/windowInfo.dart';
 
+import 'Flutter Emai/Flutter_email.dart';
+
 void main() {
   runApp(const MyApp());
 }

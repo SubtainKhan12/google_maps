@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps/Flutter%20Emai/Flutter_email.dart';
 import 'package:google_maps/fileupload.dart';
 import 'package:google_maps/model/responsemodel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -201,10 +202,23 @@ class _WindowInfoState extends State<WindowInfo> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => FilePickerWidget()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FilePickerWidget()));
                   },
                   child: Text("File Upload")),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 60.0, left: 10),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EmailSending()));
+                  },
+                  child: Text("Send Email")),
             )
           ],
         ),
