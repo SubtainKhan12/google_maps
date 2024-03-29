@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps/Google%20Maps/Home.dart';
 import 'package:google_maps/Google%20Maps/LatLongtoAddress.dart';
 import 'package:google_maps/Google%20Maps/Search.dart';
+import 'package:google_maps/Google%20Maps/all_map.dart';
 import 'package:google_maps/Google%20Maps/getuserloc.dart';
 import 'package:google_maps/Google%20Maps/windowInfo.dart';
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const WindowInfo(),
+      home: AllMap_Ui(),
     );
   }
 }
