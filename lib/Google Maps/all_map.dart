@@ -68,8 +68,11 @@ class _AllMap_UiState extends State<AllMap_Ui> {
             compassEnabled: true,
             // CALLING MAP'S DIALOG-BOX
             onTap: (position) {
-              _customInfoWindowController.hideInfoWindow;
-            },
+                _customInfoWindowController.hideInfoWindow!();
+              },
+            onCameraMove: (position) {
+                _customInfoWindowController.onCameraMove!();
+              },
             onMapCreated: (GoogleMapController controller) {
               _customInfoWindowController.googleMapController = controller;
             },
@@ -236,11 +239,12 @@ class _AllMap_UiState extends State<AllMap_Ui> {
     ResponseModel responseModel = ResponseModel.fromJson(result);
     if (result["error"] == 200) {
       print(result["message"]);
-      setState(() {
-        AllMap_Ui();
-      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result["message"]),duration: Duration(seconds: 2),));
     } else {
       print(result["error"]);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result["message"]),duration: Duration(seconds: 2),));
     }
   }
 
@@ -290,7 +294,7 @@ class _AllMap_UiState extends State<AllMap_Ui> {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-            GestureDetector(
+            InkWell(
                 onTap: () {
                   post_imageMethod();
                 },
@@ -334,47 +338,47 @@ class _AllMap_UiState extends State<AllMap_Ui> {
     setState(() {
       _userLocation = LatLng(position.latitude, position.longitude);
       // _marker.add(_buildMarker(_userLocation));
-      print('---------------------------------------- $_marker');
+      // print('---------------------------------------- $_marker');
     });
   }
 
-  Marker _buildMarker(LatLng position) {
-    return Marker(
-      markerId: MarkerId(position.toString()),
-      position: position,
-      onTap: () {
-        showInfoWindow();
-      },
-    );
-  }
+  // Marker _buildMarker(LatLng position) {
+  //   return Marker(
+  //     markerId: MarkerId(position.toString()),
+  //     position: position,
+  //     onTap: () {
+  //       showInfoWindow();
+  //     },
+  //   );
+  // }
 
   //  For location permission setup
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  // Future<bool> _handleLocationPermission() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable the services')));
-      return true;
-    }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are denied')));
-        return false;
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied, we cannot request permissions.')));
-      return false;
-    }
-    return true;
-  }
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //         content: Text(
+  //             'Location services are disabled. Please enable the services')));
+  //     return true;
+  //   }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(content: Text('Location permissions are denied')));
+  //       return false;
+  //     }
+  //   }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //         content: Text(
+  //             'Location permissions are permanently denied, we cannot request permissions.')));
+  //     return false;
+  //   }
+  //   return true;
+  // }
 }
