@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/model/getLocation_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -45,8 +46,6 @@ class _AllMap_UiState extends State<AllMap_Ui> {
     super.initState();
     fetch_AllLocations();
     setCustomMarker();
-    // _getCurrentPosition();
-
     _checkLocationPermission();
   }
 
@@ -68,11 +67,11 @@ class _AllMap_UiState extends State<AllMap_Ui> {
             compassEnabled: true,
             // CALLING MAP'S DIALOG-BOX
             onTap: (position) {
-                _customInfoWindowController.hideInfoWindow!();
-              },
+              _customInfoWindowController.hideInfoWindow!();
+            },
             onCameraMove: (position) {
-                _customInfoWindowController.onCameraMove!();
-              },
+              _customInfoWindowController.onCameraMove!();
+            },
             onMapCreated: (GoogleMapController controller) {
               _customInfoWindowController.googleMapController = controller;
             },
@@ -125,9 +124,15 @@ class _AllMap_UiState extends State<AllMap_Ui> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(
-                              right: 3.0, left: 3.0, top: 2.0),
+                              right: 0.0, left: 0.0, top: 0.0),
                           child: Column(
                             children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  "https://crystalsolutions.com.pk/test/images/${getLocationListModel[i].tcstpic.toString()}",
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
@@ -144,13 +149,15 @@ class _AllMap_UiState extends State<AllMap_Ui> {
                               ),
                               Text("Longitude: " +
                                   getLocationListModel[i].tlngval.toString()),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Image.network(
-                                "https://crystalsolutions.com.pk/test/images/${getLocationListModel[i].tcstpic.toString()}",
-                                height: 250,
-                              ),
+                              // SizedBox(
+                              //   height: 20,
+                              // ),
+                              // ClipRRect(
+                              //   borderRadius: BorderRadius.circular(15),
+                              //   child: Image.network(
+                              //     "https://crystalsolutions.com.pk/test/images/${getLocationListModel[i].tcstpic.toString()}",
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -239,12 +246,16 @@ class _AllMap_UiState extends State<AllMap_Ui> {
     ResponseModel responseModel = ResponseModel.fromJson(result);
     if (result["error"] == 200) {
       print(result["message"]);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result["message"]),duration: Duration(seconds: 2),));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(result["message"]),
+        duration: Duration(seconds: 2),
+      ));
     } else {
       print(result["error"]);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result["message"]),duration: Duration(seconds: 2),));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(result["message"]),
+        duration: Duration(seconds: 2),
+      ));
     }
   }
 
